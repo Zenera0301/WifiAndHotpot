@@ -1,0 +1,2 @@
+include ':app'
+rootProject.name = "WifiConnect_Android_9_10"

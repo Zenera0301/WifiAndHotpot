@@ -1,0 +1,4 @@
+#GetWifiInfo
+
+该demo用途：手机连了某个wifi，我们可以利用这个demo查看当前的WIFI信息。
+在Android的SDK中为我们提供了一个叫做WifiInfo的对象，这个对象可以通过WifiManager.getConnectionInfo()来获取。WifiInfo中包含了当前连接中的相关信息。
