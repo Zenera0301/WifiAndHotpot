@@ -47,8 +47,6 @@ public class MainActivity extends AppCompatActivity {
         mTextView = findViewById(R.id.textview);
         mButton = findViewById(R.id.button);
 
-
-
         // 每隔1秒执行一次
         mHandler = new Handler();//初始化mHandler
         mHandler.postDelayed(runnable, TIME); // 在初始化方法里
@@ -119,11 +117,12 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<String> aList = new ArrayList<>();
         String IPADDRESS_PATTERN ="(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)";
         Pattern pattern = Pattern.compile(IPADDRESS_PATTERN);
-        // 获取result
+        // 获取 result
         ShellUtils.CommandResult result = ShellUtils.execCommand("ip neigh",false);
         Log.i(TAG,"result1.result = " + result.result);
         Log.i(TAG,"result1.successMsg = " + result.successMsg);
         Log.i(TAG,"result1.errorMsg = " + result.errorMsg);
+
         String[] strList = result.successMsg.split(" "); // 以空格为分隔符
         for (int i = 0; i < strList.length; i++) {
             Matcher matcher = pattern.matcher(strList[i]);
@@ -135,6 +134,39 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+
+    private HashMap<String, String> getConnectedIP4() {
+        HashMap<String, String> map = new HashMap<>();
+        String IPADDRESS_PATTERN ="(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)";
+        Pattern pattern = Pattern.compile(IPADDRESS_PATTERN);
+        // 获取 result
+        ShellUtils.CommandResult result = ShellUtils.execCommand("ip neigh",false);
+        Log.i(TAG,"result1.result = " + result.result);
+        Log.i(TAG,"result1.successMsg = " + result.successMsg);
+        Log.i(TAG,"result1.errorMsg = " + result.errorMsg);
+
+        String SPLIT_PATTERN = "[A-Z]+|\\d+|-|\\[|\\]|[\\u4e00-\\u9fa5]+";
+        Pattern p = Pattern.compile(SPLIT_PATTERN);
+        String[] strList = result.successMsg.split(" "); // 以空格为分隔符
+        String ip = "";
+        int index = -1;
+        for (int i = 0; i < strList.length; i++) {
+            if(i == index + 5) {
+                Matcher m = p.matcher(strList[i]);
+                if (m.find()) {
+                    map.put(ip, m.group());
+                }
+            }
+
+            Matcher matcher = pattern.matcher(strList[i]);
+            if (matcher.find()) {
+                ip = matcher.group(); // 先记录ip
+                index = i;
+            }
+        }
+        return map;
+    }
+
     /**
      * 每隔1s刷新一次
      */
@@ -143,9 +175,12 @@ public class MainActivity extends AppCompatActivity {
         public void run() {
             try {
                 ArrayList<String> ipList = getConnectedIP3();
+                HashMap<String, String> ipMap = getConnectedIP4();
                 mHandler.postDelayed(this, TIME);
-                mTextView.setText(ipList.toString()); // 给用户看到，哪些IP在连手机
+                //mTextView.setText(ipList.toString()); // 给用户看到，哪些IP在连手机
+                mTextView.setText(ipMap.toString()); // 给用户看到，哪些IP在连手机
                 Log.i(TAG, ipList.toString());
+                Log.i(TAG, ipMap.toString());
             } catch (Exception e) {
                 e.printStackTrace();
             }
